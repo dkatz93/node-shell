@@ -10,7 +10,7 @@ process.stdin.on('data', function (data) {
   var args = data.toString().slice(data.indexOf(" ")).trim();
   
   if(commands[cmd]){
-	  commands[cmd](args);
+	  commands[cmd](args, done);
   }
   else{
   	process.stdout.write('You typed: ' + cmd);
@@ -20,3 +20,9 @@ process.stdin.on('data', function (data) {
 
 });
 
+
+// can have this here or in command.js
+var done = function(output){
+	process.stdout.write(output + "\n");
+	process.stdout.write("prompt > ");
+}

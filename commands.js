@@ -1,78 +1,75 @@
 var fs = require('fs');
+var request = require('request');
 
 module.exports = {
 
-	pwd: function(arguments){
-	  	process.stdout.write(process.env.PWD)
-	  	process.stdout.write('\nprompt > ');
+	pwd: function(arguments, done){
+	  	done(process.env.PWD);
 	},
 
-	date: function(arguments){
-	  	process.stdout.write(Date())
-	  	process.stdout.write('\nprompt > ');
+	date: function(arguments, done){
+	  	done(Date)
 	},
-	ls: function(arguments){
+	ls: function(arguments, done){
+		var newstr = ''
 		fs.readdir('.', function(err, files) {
  			if (err) throw err;
-  				files.forEach(function(file) {
-    			process.stdout.write(file.toString() + "\n");
+  			files.forEach(function(file) {
+    			newstr += file.toString() + "\n"
   			})
-  			process.stdout.write("prompt > ");
+  			done(newstr);
+  			// done(file.toString() + "\n")
 		});
 	}, 
 
-	echo: function(arguments){
-		process.stdout.write(arguments + "\n");
-		process.stdout.write("prompt > ");
+	echo: function(arguments, done){
+		done(arguments);
 	}, 
 
-	cat: function(arguments){
+	cat: function(arguments, done){
 		fs.readFile('./'+ arguments, function(err, files) {
  			if (err){ 
  				throw err;
  			}
-    		process.stdout.write(files.toString() + "\n");
-    		process.stdout.write("prompt > ");
+    		done(files.toString());
   		})
 	},
 
-	head: function(arguments){
+	head: function(arguments, done){
 		fs.readFile('./'+ arguments, function(err, files) {
  			if (err){ 
  				throw err;
  			}
 
  			var test = files.toString().split("\n");
-
- 			
+ 			var newstr = '';
  			for(var i=0; i < 5; i++){
- 				process.stdout.write(test[i] + "\n");
+ 				newstr += test[i] + "\n";
  			}	
- 			//process.stdout.write(test);
-    		//process.stdout.write(files.toString() + "\n");
-    		process.stdout.write("prompt > ");
+    		done(newstr);
 
   		})
 	},
 
-	tail: function(arguments){
+	tail: function(arguments, done){
 		fs.readFile('./'+ arguments, function(err, files) {
  			if (err){ 
  				throw err;
  			}
 
  			var test = files.toString().split("\n");
+ 			var newstr = '';
 
  			for(var i=test.length-5; i < test.length; i++){
- 				process.stdout.write(test[i] + "\n");
+ 				newstr += test[i] + "\n";
  			}	
- 			process.stdout.write("prompt > ");
+ 			done(newstr);
  			
 
   		})
 	},
 
-	sort: function(arguments){
+	sort: function(arguments, done){
 		fs.readFile('./'+ arguments, function(err, files) {
  			if (err){ 
  				throw err;
@@ -81,12 +78,12 @@ module.exports = {
  			var test = files.toString().split("\n");
  			var sortedArray = test.sort().join("\n");
  		
- 			process.stdout.write(sortedArray);
+ 			done(sortedArray);
  
   		})
 	},
 
-	wc: function(arguments){
+	wc: function(arguments, done){
 		fs.readFile('./'+ arguments, function(err, files) {
  			if (err){ 
  				throw err;
@@ -95,13 +92,12 @@ module.exports = {
  			var test = files.toString().split("\n");
  			var length = test.length.toString();
  			
- 			process.stdout.write(length + "\n");
- 			process.stdout.write("prompt > ");
+ 			done(length);
  
   		})
 	},
 
-	uniq: function(arguments){
+	uniq: function(arguments, done){
 		fs.readFile('./'+ arguments, function(err, files) {
  			if (err){ 
  				throw err;
@@ -115,15 +111,30 @@ module.exports = {
  					newArray.push(test[i]);
  				}
  			}
- 			process.stdout.write(newArray.join("\n"));
- 			process.stdout.write("prompt > ");
+ 			done(newArray.join("\n"));
  
   		})
 	},
-
-
+	curl: function(arguments, done){
+		if(arguments.indexOf('http://') === -1){
+			if(arguments.indexOf('www.') === -1){
+				arguments = 'http://www.' + arguments;
+			} else {
+				arguments = 'http://' + arguments;
+			}
+		}
+		request(arguments, function(error, response, body){
+			if(!error && response.statusCode == 200){
+				done(body)
+			}
+		})
+	}
 }
 
+// var done = function(output){
+// 	process.stdout.write(output + "\n");
+// 	process.stdout.write("prompt > ");
+// }
 
 //can do this too:
 // exports.pwd =  function(){
